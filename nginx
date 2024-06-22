@@ -1,0 +1,107 @@
+sudo ln -s /etc/nginx/sites-available/play-dates-backend /etc/nginx/sites-enabled/
+sudo unlink /etc/nginx/sites-enabled/play-dates-backend
+
+sudo certbot --nginx -d dev.api.classmateplaydate.com
+
+## Delete a domain with certbot ssl########
+sudo unlink /etc/nginx/sites-enabled/old_domain.com
+rm /etc/nginx/sites-available/old_domain.conf
+sudo nginx -t
+sudo certbot delete --cert-name old_domain.com
+sudo systemctl restart nginx
+
+
+=====================================================================
+-----------------------------
+
+
+
+sudo apt update
+sudo apt install nginx
+
+sudo apt install certbot python3-certbot-nginx
+
+------
+app1
+-----
+sudo nano /etc/nginx/sites-available/play-backend-dev
+
+server {
+    listen 80;
+    server_name dev.api.classmateplaydate.com;
+
+    location / {
+        proxy_pass http://localhost:4000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/play-backend-dev /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+sudo certbot --nginx -d dev.api.classmateplaydate.com
+
+#if you want to check certificate files 
+cd /etc/letsencrypt/live/
+
+---------------------
+app 2
+---------------------
+sudo nano /etc/nginx/sites-available/play-dates-frontend
+
+server {
+    listen 80;
+    server_name dev.classmateplaydate.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+sudo ln -s /etc/nginx/sites-available/play-dates-frontend /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+sudo certbot --nginx -d dev.classmateplaydate.com
+
+------
+app3
+------
+sudo nano /etc/nginx/sites-available/messagetopdf
+
+server {
+    listen 80;
+    server_name classmate.dittopost.com;
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/messagetopdf /etc/nginx/sites-enabled/
+
+sudo certbot --nginx -d classmate.dittopost.com
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,125 @@
+ec2 instance app is running on port 3001
+
+commands:
+docker volume create uptime-kuma
+docker container run -d --restart=always -p 3001:3001 -v uptime-kuma:/app/data --name uptime-kuma louislam/uptime-kuma:1
+docker container ls -a
+
+Open http://54.234.8.87:3001 in your browser
+
+
+sudo apt update
+sudo apt install certbot
+
+
+sudo certbot certonly --standalone -d yourdomain.com
+
+#Certbot can automatically handle renewals with a simple cron job. You can verify this by running:
+sudo certbot renew --dry-run
+
+
+sudo apt install nginx
+
+
+sudo nano /etc/nginx/sites-available/yourdomain.com
+
+server {
+    listen 443 ssl;
+    server_name yourdomain.com;
+
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+    # Other SSL configuration (e.g., SSL protocols, ciphers, etc.) can be added here
+
+    location / {
+        # Configuration to proxy requests to your application, if applicable
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+--------
+
+sudo ln -s /etc/nginx/sites-available/yourdomain.com /etc/nginx/sites-enabled/
+
+sudo nginx -t
+
+sudo systemctl reload nginx
+-------------------------------------------------------
+http {
+    # Other configurations...
+
+    # Server block for domain1.com
+    server {
+        listen 443 ssl;
+        server_name domain1.com;
+
+        ssl_certificate /etc/letsencrypt/live/domain1.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/domain1.com/privkey.pem;
+
+        location / {
+            proxy_pass http://localhost:port_for_domain1;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+
+        location /route1 {
+            # Configuration for route1
+            proxy_pass http://localhost:port_for_route1;
+            # Additional configuration for route1 if needed
+        }
+
+        location /route2 {
+            # Configuration for route2
+            proxy_pass http://localhost:port_for_route2;
+            # Additional configuration for route2 if needed
+        }
+
+        # Add more locations for additional routes as necessary
+
+    }
+
+    # Server block for domain2.com
+    server {
+        listen 443 ssl;
+        server_name domain2.com;
+
+        ssl_certificate /etc/letsencrypt/live/domain2.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/domain2.com/privkey.pem;
+
+        location / {
+            proxy_pass http://localhost:port_for_domain2;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+
+        location /route3 {
+            # Configuration for route3
+            proxy_pass http://localhost:port_for_route3;
+            # Additional configuration for route3 if needed
+        }
+
+        location /route4 {
+            # Configuration for route4
+            proxy_pass http://localhost:port_for_route4;
+            # Additional configuration for route4 if needed
+        }
+
+        # Add more locations for additional routes as necessary
+
+    }
+
+    # Other server blocks for additional domains...
+}
+
+
